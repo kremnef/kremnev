@@ -1,0 +1,10 @@
+function search() {
+    var query = cocoon.request.getParameter('query');
+    var searchAction = new Packages.ru.strela.ems.actions.SearchAction();
+    var results = searchAction.search(query);
+    cocoon.session.setAttribute('results', results);
+    cocoon.sendPage('/search-results', results);
+}
+//1
+
+

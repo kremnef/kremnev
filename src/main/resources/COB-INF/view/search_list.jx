@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<search-results xmlns:jx="http://apache.org/cocoon/templates/jx/1.0">
+    <!--<head>
+        <title>Contents successful</title>
+    </head>
+    <body>
+        <list>
+            <jx:import uri="view/document/Document_template.jx"/>
+        </list>
+    </body>-->
+    <jx:forEach items="${results}" var="item" varStatus="status">
+                <item id="${item.id}"
+                      systemName="${item.systemName}"
+                      childrenCount="${item.emsObject.childrenCount}"
+                      hasChildren="${item.objectType.hasChildren}"
+                      parentId="${item.parentId}"
+                        position="${item.position}">
+                    <!--<name>${item.name}</name>-->
+                    <title>${item.title}</title>
+                    <publishDateTime>${item.publishDateTime}</publishDateTime>
+                    <expireDateTime type="hidden">${item.expireDateTime}</expireDateTime>
+                    <!--<isProtected>${item.isProtected}</isProtected>-->
+                    <documentTypeId type="hidden">${item.documentTypeId}</documentTypeId>
+                </item>
+            </jx:forEach>
+        <!--&lt;!&ndash;</items>&ndash;&gt;  1-->
+</search-results>

@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<map:sitemap xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://apache.org/cocoon/sitemap/1.0 http://cocoon.apache.org/schema/sitemap/cocoon-sitemap-1.0.xsd"
+             xmlns:map="http://apache.org/cocoon/sitemap/1.0">
+    <map:views>
+        <map:view name="xml" from-label="xml">
+            <map:serialize type="xml"/>
+        </map:view>
+        <map:view name="pdf" from-label="pdf">
+            <map:transform src="blockcontext:/tgk2/stylesheets/system/page2fo.xsl">
+            </map:transform>
+            <map:serialize type="fo2pdf"/>
+        </map:view>
+    </map:views>
+    <map:components>
+          <!--1-->
+
+        <map:transformers default="xslt">
+            <map:transformer name="i18n"
+                             src="org.apache.cocoon.transformation.I18nTransformer">
+                <use-store>true</use-store>
+                <check-includes>true</check-includes>
+                <use-request-parameters>true</use-request-parameters>
+                <catalogues default="documenttypes">
+                    <catalogue id="documenttypes" name="messages" location="context://i18n"/>
+
+                    <catalogue id="forms" name="messages"
+                               location="resource://org/apache/cocoon/forms/system/i18n"/>
+                </catalogues>
+                <cache-at-startup>true</cache-at-startup>
+                <encoding>UTF-8</encoding>
+            </map:transformer>
+        </map:transformers>
+
+        <!--map:generators default="file">
+            <map:generator name="file"
+                           src="org.apache.cocoon.generation.FileGenerator"/>
+            <map:generator name="html" src="org.apache.cocoon.generation.HTMLGenerator"/>
+        </map:generators-->
+
+        <map:serializers default="html">
+            <map:serializer name="fo2pdf"
+                            src="org.apache.cocoon.serialization.FOPSerializer"
+                            mime-type="application/pdf">
+                <!--<user-config>classpath:/META-INF/cocoon/fo2pdf/fo2pdf-config.xml</user-config>-->
+                <user-config>context://cocoon/fo2pdf/fo2pdf-config.xml</user-config>
+            </map:serializer>
+            <map:serializer logger="sitemap.serializer.xml" mime-type="text/xml" name="xml"
+                            src="org.apache.cocoon.serialization.XMLSerializer">
+                <encoding>UTF-8</encoding>
+            </map:serializer>
+
+            <map:serializer logger="sitemap.serializer.html" mime-type="text/html" name="html"
+                            pool-max="32" src="org.apache.cocoon.serialization.HTMLSerializer">
+                <doctype-public>-//W3C//DTD HTML 4.01 Transitional//EN</doctype-public>
+                <doctype-system>http://www.w3.org/TR/html4/loose.dtd</doctype-system>
+                <encoding>UTF-8</encoding>
+                <omit-xml-declaration>true</omit-xml-declaration>
+            </map:serializer>
+            <map:serializer name="xhtml"
+                            src="org.apache.cocoon.serialization.XMLSerializer"
+                            mime-type="text/html"
+                            logger="sitemap.serializer.xhtml"
+                            pool-max="64">
+                <doctype-public>-//W3C//DTD XHTML 1.0 Strict//EN</doctype-public>
+                <doctype-system>http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd</doctype-system>
+                <encoding>UTF-8</encoding>
+                <omit-xml-declaration>true</omit-xml-declaration>
+            </map:serializer>
+        </map:serializers>
+
+        <map:selectors default="browser">
+            <map:selector logger="sitemap.selector.browser" name="browser"
+                          src="org.apache.cocoon.selection.BrowserSelector">
+                <!--
+                        +
+                        | NOTE: The appearance indicates the search order. This is very important since
+                        |       some words may be found in more than one browser description. (MSIE is
+                        |       presented as "Mozilla/4.0 (Compatible; MSIE 4.01; ...")
+                        +
+
+                -->
+                <browser name="opera" useragent="Opera"/>
+                <browser name="explorer" useragent="MSIE"/>
+                <browser name="pocketexplorer" useragent="MSPIE"/>
+                <browser name="handweb" useragent="HandHTTP"/>
+                <browser name="avantgo" useragent="AvantGo"/>
+                <browser name="imode" useragent="DoCoMo"/>
+                <browser name="lynx" useragent="Lynx"/>
+                <browser name="java" useragent="Java"/>
+                <browser name="wap" useragent="Nokia"/>
+                <browser name="wap" useragent="UP"/>
+                <browser name="wap" useragent="Wapalizer"/>
+                <browser name="mozilla5" useragent="Mozilla/5"/>
+                <browser name="mozilla5" useragent="Netscape6/"/>
+                <browser name="netscape" useragent="Mozilla"/>
+            </map:selector>
+            <!--
+                  +
+                  | Exception selector : used in <map:handle> errors to build different pipelines
+                  | depending on the error that occured.
+                  | The configuration allows to associate a symbolic name to exception classes
+                  | which is used in the <map:when> tests.
+                  | An exception can also be "unrolled", meaning that cascaded exception will be checked.
+                  +
+
+            -->
+            <map:selector logger="sitemap.selector.exception" name="exception"
+                          src="org.apache.cocoon.selection.ExceptionSelector">
+                <exception name="not-found" class="org.apache.cocoon.ResourceNotFoundException"/>
+                <exception name="invalid-continuation"
+                           class="org.apache.cocoon.components.flow.InvalidContinuationException"/>
+                <!--  The statement below tells the selector to unroll as much exceptions as possible
+                -->
+                <exception class="java.lang.Throwable" unroll="true"/>
+            </map:selector>
+            <map:selector logger="sitemap.selector.request-method" name="request-method"
+                          src="org.apache.cocoon.selection.RequestMethodSelector"/>
+            <map:selector logger="sitemap.selector.resource-exists" name="resource-exists"
+                          src="org.apache.cocoon.selection.ResourceExistsSelector"/>
+            <map:selector logger="sitemap.selector.request-parameter" name="request-parameter"
+                          src="org.apache.cocoon.selection.RequestParameterSelector">
+                <!--
+                        +
+                        | Define now which request parameter to use; or do it later,
+                        | when using this selector, via "parameter-name" parameter.
+                    <parameter-name>myparam</parameter-name>
+                        +
+
+                -->
+            </map:selector>
+            <map:selector logger="sitemap.selector.request-attribute" name="request-attribute"
+                          src="org.apache.cocoon.selection.RequestAttributeSelector">
+                <!--  <attribute-name>myparam</attribute-name>
+                -->
+            </map:selector>
+            <map:selector logger="sitemap.selector.session-attribute" name="session-attribute"
+                          src="org.apache.cocoon.selection.SessionAttributeSelector">
+                <!--  <attribute-name>myparam</attribute-name>
+                -->
+            </map:selector>
+            <map:selector logger="sitemap.selector.parameter" name="parameter"
+                          src="org.apache.cocoon.selection.ParameterSelector"/>
+            <map:selector logger="sitemap.selector.header" name="header"
+                          src="org.apache.cocoon.selection.HeaderSelector">
+                <!--  <header-name>myparam</header-name>
+                -->
+            </map:selector>
+            <map:selector logger="sitemap.selector.host" name="host" src="org.apache.cocoon.selection.HostSelector"/>
+            <map:selector logger="sitemap.selector.simple" name="simple"
+                          src="org.apache.cocoon.selection.SimpleSelector"/>
+        </map:selectors>
+
+
+    </map:components>
+
+    <map:flow language="javascript">
+        <map:script src="flow/error.flow"/>
+    </map:flow>
+
+
+    <map:resources>
+        <map:resource name="generate">
+            <map:select type="request-parameter">
+                <map:parameter name="parameter-name" value="xml" />
+                <map:when test="true">
+                    <map:call resource="xml">
+                        <map:parameter name="block" value="{block}"/>
+                    </map:call>
+                </map:when>
+                <!--<map:parameter name="parameter-name" value="pdf" />
+                <map:when test="true">
+                    <map:call resource="pdf">
+                        <map:parameter name="block" value="{block}"/>
+                    </map:call>
+                </map:when>-->
+                <map:otherwise>
+                    <map:transform type="xslt" src="cocoon:/generateXSLTFromSession" />
+                    <map:transform type="i18n">
+                        <map:parameter name="locale" value="{session-attr:locale}"/>
+                    </map:transform>
+                    <map:select type="parameter">
+                        <map:parameter name="parameter-selector-test" value="{block}"/>
+                        <map:when test="true">
+                            <map:serialize type="xml"/>
+                        </map:when>
+                        <map:otherwise>
+                            <map:serialize type="html"/>
+                        </map:otherwise>
+                    </map:select>
+                </map:otherwise>
+            </map:select>
+        </map:resource>
+        <map:resource name="xml">
+            <!--<map:transform src="stylesheets/system/xml2html.xslt">
+                <map:parameter name="blockPrefix" value="{global:blockPrefix}"/>
+            </map:transform>
+            <map:serialize type="html"/>-->
+            <map:serialize type="xml"/>
+        </map:resource>
+    </map:resources>
+
+    <map:pipelines>
+
+        <map:pipeline id="resources">
+
+            <map:match pattern="mediateka/**.pdf">
+                <map:read src="context://mediateka/{1}.pdf">
+                    <map:parameter name="byte-ranges" value="false"/>
+                </map:read>
+            </map:match>
+            <map:match pattern="mediateka/**">
+                <map:read src="context://mediateka/{1}"/>
+            </map:match>
+            <map:match pattern="dtd/**.dtd">
+                <map:read mime-type="application/xml-dtd" src="context://dtd/{1}.dtd"/>
+            </map:match>
+            <map:match pattern="img/**.gif">
+                <map:read mime-type="image/gif" src="context://img/{1}.gif"/>
+            </map:match>
+            <map:match pattern="img/**.png">
+                <map:read mime-type="image/png" src="context://img/{1}.png"/>
+            </map:match>
+            <map:match pattern="img/**.jpeg">
+                <map:read mime-type="image/gif" src="context://img/{1}.jpeg"/>
+            </map:match>
+            <map:match pattern="img/**.jpg">
+                <map:read mime-type="image/jpeg" src="context://img/{1}.jpg"/>
+            </map:match>
+
+            <!--fonts-->
+            <map:match pattern="fonts/**">
+                <map:read src="context://fonts/{1}"/>
+            </map:match>
+            <map:match pattern="xhtml.ent">
+                <map:read src="context://xhtml.ent"/>
+            </map:match>
+            <map:match pattern="**/xhtml.ent">
+                <map:read src="context://xhtml.ent"/>
+            </map:match>
+
+
+            <!--  CSS stylesheets -->
+            <map:match pattern="resource/external/**">
+                <map:read mime-type="text/javascript" src="context://js/{1}.js"/>
+            </map:match>
+            <map:match pattern="flowplayer/**">
+                <map:read src="servlet:ems:/flowplayer/{1}"/>
+            </map:match>
+            <map:match pattern="css/**.css">
+                <map:read mime-type="text/css" src="context://css/{1}.css"/>
+            </map:match>
+            <!--  JavaScript scripts -->
+            <map:match pattern="js/**.js">
+                <map:read mime-type="text/javascript" src="context://js/{1}.js"/>
+            </map:match>
+
+            <!-- не трогать ! отвечает за вывод картинок-->
+            <map:match pattern="**.*">
+                <map:read src="context://{1}.{2}"/>
+            </map:match>
+
+            <map:handle-errors>
+                <map:select type="exception">
+                    <map:when test="not-found">
+                        <map:call function="sendStatus">
+                            <map:parameter name="statusCode" value="404"/>
+                        </map:call>
+                    </map:when>
+                    <map:when test="invalid-continuation">
+                        <map:generate type="exception"/>
+                        <map:transform src="stylesheets/system/exception2html.xslt">
+                            <map:parameter name="blockPrefix" value="{global:blockPrefix}"/>
+                            <map:parameter name="realPath" value="{system-property:user.dir}"/>
+                            <map:parameter name="pageTitle" value="Invalid Continuation"/>
+                        </map:transform>
+                        <map:serialize status-code="404"/>
+                    </map:when>
+                    <map:otherwise>
+                        <map:generate type="exception"/>
+                        <map:transform src="stylesheets/system/exception2html.xslt">
+                            <map:parameter name="blockPrefix" value="{global:blockPrefix}"/>
+                            <map:parameter name="realPath" value="{system-property:user.dir}"/>
+                        </map:transform>
+                        <map:serialize status-code="500"/>
+                    </map:otherwise>
+                </map:select>
+            </map:handle-errors>
+
+
+        </map:pipeline>
+
+        <map:pipeline id="redirect-pipeline" type="noncaching">
+            <map:match pattern="pass">
+                <map:generate src="login.xml"/>
+                <!--<map:transform label="pdf"/>-->
+                <!--<map:transform label="xml"/>-->
+                <map:transform src="cocoon-acegisecurity-sample.xslt"/>
+                <map:serialize type="xhtml"/>
+            </map:match>
+
+            <map:match pattern="*.pdf">
+                <map:generate src="{1}.xml"/>
+                <map:transform src="blockcontext:/tgk2/stylesheets/system/page2fo.xsl"/>
+                <map:serialize type="fo2pdf"/>
+            </map:match>
+            <map:match pattern="*.rss">
+                <map:generate src="{1}.xml"/>
+                <map:transform src="context://WEB-INF/xslt/rss/content2rss.xsl">
+                    <map:parameter name="siteName" value="{1}"/>
+                    <map:parameter name="contextPath" value="{1}"/>
+                </map:transform>
+                <map:serialize type="xml"/>
+            </map:match>
+
+            <map:match pattern="changePassword">
+                <map:generate src="changePWD.xml"/>
+                <map:transform src="cocoon-acegisecurity-sample.xslt"/>
+                <map:serialize type="xhtml"/>
+            </map:match>
+            <!-- <map:match pattern="*.rdf">
+                <map:generate src="servlet:ems:/site/block/{1}"/>
+                <map:transform src="transforms/content2rss.xsl"/>
+                <map:serialize type="xml"/>
+            </map:match>-->
+
+
+
+
+            <map:match pattern="**">
+                <map:generate src="servlet:ems:/site/block/{1}"/>
+                <map:serialize type="html"/>
+            </map:match>
+            <!--чсывфы-->
+
+        </map:pipeline>
+
+    </map:pipelines>
+
+</map:sitemap>

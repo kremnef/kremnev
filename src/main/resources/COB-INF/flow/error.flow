@@ -1,0 +1,6 @@
+function sendStatus() {
+    var statusCode = cocoon.parameters.statusCode;
+    print("statusCode = " + statusCode);
+    cocoon.sendStatus(statusCode);
+}
+//1

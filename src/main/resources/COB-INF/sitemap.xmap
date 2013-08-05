@@ -29,8 +29,13 @@
         </map:view>
     </map:views>
     <map:components>
-          <!--1-->
-
+        <!--1-->
+        <map:generators default="file">
+            <map:generator name="file"
+                           src="org.apache.cocoon.generation.FileGenerator"/>
+            <map:generator name="sitePage"
+                           src="ru.strela.ems.generator.SitePageGenerator"/>
+        </map:generators>
         <map:transformers default="xslt">
             <map:transformer name="i18n"
                              src="org.apache.cocoon.transformation.I18nTransformer">
@@ -54,15 +59,7 @@
             <map:generator name="html" src="org.apache.cocoon.generation.HTMLGenerator"/>
         </map:generators-->
 
-        <map:serializers default="html">
-            <map:serializer logger="sitemap.serializer.html" mime-type="text/html" name="html"
-                                        pool-max="32" src="org.apache.cocoon.serialization.HTMLSerializer">
-                            <doctype-public>-//W3C//DTD HTML 4.01 Transitional//EN</doctype-public>
-                            <doctype-system>http://www.w3.org/TR/html4/loose.dtd</doctype-system>
-                            <encoding>UTF-8</encoding>
-                            <omit-xml-declaration>true</omit-xml-declaration>
-                        </map:serializer>
-
+        <map:serializers default="xhtml">
             <map:serializer name="fo2pdf"
                             src="org.apache.cocoon.serialization.FOPSerializer"
                             mime-type="application/pdf">
@@ -74,7 +71,14 @@
                 <encoding>UTF-8</encoding>
             </map:serializer>
 
-
+            <map:serializer logger="sitemap.serializer.html" mime-type="text/html" name="html"
+                            pool-max="32" src="org.apache.cocoon.serialization.HTMLSerializer">
+                <doctype-public>-//W3C//DTD HTML 4.01 Transitional//EN</doctype-public>
+                <!--<doctype-system>http://www.w3.org/TR/html4/loose.dtd</doctype-system>-->
+                <doctype-system>http://www.w3.org/TR/html4/strict.dtd</doctype-system>
+                <encoding>UTF-8</encoding>
+                <omit-xml-declaration>true</omit-xml-declaration>
+            </map:serializer>
             <map:serializer name="xhtml"
                             src="org.apache.cocoon.serialization.XMLSerializer"
                             mime-type="text/html"
@@ -311,6 +315,8 @@
         <map:pipeline id="redirect-pipeline" type="noncaching">
             <map:match pattern="pass">
                 <map:generate src="login.xml"/>
+                <!--<map:transform label="pdf"/>-->
+                <!--<map:transform label="xml"/>-->
                 <map:transform src="cocoon-acegisecurity-sample.xslt"/>
                 <map:serialize type="xhtml"/>
             </map:match>
@@ -342,12 +348,33 @@
 
 
 
+            <!--<map:match pattern="**">
+                <map:generate type="sitePage" src="servlet:ems:/site/{1}">
+                    <map:parameter name="index" value="{global:startPage}"/>
+                </map:generate>
+                <map:call resource="generate"/>
+            </map:match>-->
+
+            <map:match pattern="**/2">
+                <!--<map:read src="servlet:ems:/site/block/{1}"/>-->
+
+                <!--<map:call resource="generate"/>-->
+                <map:generate src="servlet:ems:site/{1}">
+                    <map:parameter name="index" value="{global:startPage}"/>
+                </map:generate>
+                <!--<map:transform type="xslt" src="servlet:ems:/site/generateXSLTFromSession"/>
+                <map:transform type="i18n">
+                    <map:parameter name="locale" value="{session-attr:locale}"/>
+                </map:transform>-->
+                <map:serialize type="html"/>
+            </map:match>
 
             <map:match pattern="**">
-                <!--<map:generate src="servlet:ems:/site/block/{1}"/>-->
-                <map:generate src="{1}"/>
-                <map:serialize type="xhtml"/>
+                <map:read src="servlet:ems:/site/{1}"/>
             </map:match>
+
+
+            <!--чсывфы-->
 
         </map:pipeline>
 

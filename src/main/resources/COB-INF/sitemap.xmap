@@ -30,6 +30,7 @@
     </map:views>
     <map:components>
         <!--1-->
+
         <map:generators default="file">
             <map:generator name="file"
                            src="org.apache.cocoon.generation.FileGenerator"/>
@@ -53,11 +54,7 @@
             </map:transformer>
         </map:transformers>
 
-        <!--map:generators default="file">
-            <map:generator name="file"
-                           src="org.apache.cocoon.generation.FileGenerator"/>
-            <map:generator name="html" src="org.apache.cocoon.generation.HTMLGenerator"/>
-        </map:generators-->
+
 
         <map:serializers default="xhtml">
             <map:serializer name="fo2pdf"
@@ -90,6 +87,7 @@
                 <omit-xml-declaration>true</omit-xml-declaration>
             </map:serializer>
         </map:serializers>
+
 
         <map:selectors default="browser">
             <map:selector logger="sitemap.selector.browser" name="browser"
@@ -173,7 +171,6 @@
                           src="org.apache.cocoon.selection.SimpleSelector"/>
         </map:selectors>
 
-
     </map:components>
 
     <map:flow language="javascript">
@@ -181,46 +178,6 @@
     </map:flow>
 
 
-    <map:resources>
-        <map:resource name="generate">
-            <map:select type="request-parameter">
-                <map:parameter name="parameter-name" value="xml" />
-                <map:when test="true">
-                    <map:call resource="xml">
-                        <map:parameter name="block" value="{block}"/>
-                    </map:call>
-                </map:when>
-                <!--<map:parameter name="parameter-name" value="pdf" />
-                <map:when test="true">
-                    <map:call resource="pdf">
-                        <map:parameter name="block" value="{block}"/>
-                    </map:call>
-                </map:when>-->
-                <map:otherwise>
-                    <map:transform type="xslt" src="cocoon:/generateXSLTFromSession" />
-                    <map:transform type="i18n">
-                        <map:parameter name="locale" value="{session-attr:locale}"/>
-                    </map:transform>
-                    <map:select type="parameter">
-                        <map:parameter name="parameter-selector-test" value="{block}"/>
-                        <map:when test="true">
-                            <map:serialize type="xml"/>
-                        </map:when>
-                        <map:otherwise>
-                            <map:serialize type="html"/>
-                        </map:otherwise>
-                    </map:select>
-                </map:otherwise>
-            </map:select>
-        </map:resource>
-        <map:resource name="xml">
-            <!--<map:transform src="stylesheets/system/xml2html.xslt">
-                <map:parameter name="blockPrefix" value="{global:blockPrefix}"/>
-            </map:transform>
-            <map:serialize type="html"/>-->
-            <map:serialize type="xml"/>
-        </map:resource>
-    </map:resources>
 
     <map:pipelines>
 
@@ -348,6 +305,7 @@
 
 
 
+
             <!--<map:match pattern="**">
                 <map:generate type="sitePage" src="servlet:ems:/site/{1}">
                     <map:parameter name="index" value="{global:startPage}"/>
@@ -355,26 +313,12 @@
                 <map:call resource="generate"/>
             </map:match>-->
 
-            <map:match pattern="**/2">
-                <!--<map:read src="servlet:ems:/site/block/{1}"/>-->
 
-                <!--<map:call resource="generate"/>-->
-                <map:generate src="servlet:ems:site/{1}">
-                    <map:parameter name="index" value="{global:startPage}"/>
-                </map:generate>
-                <!--<map:transform type="xslt" src="servlet:ems:/site/generateXSLTFromSession"/>
-                <map:transform type="i18n">
-                    <map:parameter name="locale" value="{session-attr:locale}"/>
-                </map:transform>-->
-                <map:serialize type="html"/>
-            </map:match>
 
             <map:match pattern="**">
                 <map:read src="servlet:ems:/site/{1}"/>
             </map:match>
 
-
-            <!--чсывфы-->
 
         </map:pipeline>
 

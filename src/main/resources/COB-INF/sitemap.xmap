@@ -347,7 +347,7 @@
                 <map:read src="http://market.yandex.ru/model.xml?modelid=7023271&amp;hid=4954975&amp;int_lnk=p-goods"/>
             </map:match>
             <map:match pattern="**">
-                <map:read src="servlet:ems:/site/block/{1}">
+                <map:read src="servlet:ems:/site/{1}">
                     <!--<map:parameter name="page" value="{request-attr:page}"/>-->
                     <map:parameter name="page" value="{request-param:page}"/>
                 </map:read>

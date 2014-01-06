@@ -28,9 +28,12 @@
             <map:serialize type="fo2pdf"/>
         </map:view>
     </map:views>
+
     <map:components>
         <!--1-->
-
+        <map:actions>
+            <map:action name="site-locale" src="ru.strela.ems.actions.LanguageUriPrefixAction"/>
+        </map:actions>
         <map:generators default="file">
             <map:generator name="file"
                            src="org.apache.cocoon.generation.FileGenerator"/>
@@ -306,18 +309,23 @@
 
 
 
+            <map:match pattern="**">
+               <map:read src="servlet:ems:/{1}"/>
+            </map:match>
             <!--<map:match pattern="**">
-                <map:generate type="sitePage" src="servlet:ems:/site/{1}">
-                    <map:parameter name="index" value="{global:startPage}"/>
-                </map:generate>
-                <map:call resource="generate"/>
+                <map:act type="site-locale">
+                    <map:read src="servlet:ems:/{session-attr:site_locale}/{1}"/>
+                </map:act>
             </map:match>-->
 
 
 
-            <map:match pattern="**">
-                <map:read src="servlet:ems:/site/{1}"/>
-            </map:match>
+            <!--<map:match pattern="**">
+                <map:act type="site-locale">
+                    <map:read src="servlet:ems:/site/{session-attr:site_locale}/{1}"/>
+                </map:act>
+
+            </map:match>-->
 
 
         </map:pipeline>
